@@ -11,4 +11,8 @@ class Repository {
     suspend fun getUser(): Response<User> {
         return apiService.getUser()
     }
+
+    suspend fun getUserWithId(id: Int): Response<User> {
+        return apiService.getUserWithId(id)
+    }
 }

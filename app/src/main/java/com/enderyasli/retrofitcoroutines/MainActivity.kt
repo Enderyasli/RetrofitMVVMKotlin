@@ -29,7 +29,10 @@ class MainActivity : AppCompatActivity() {
         ).get(MainViewModel::class.java)
 
 
-        viewModel.getUser()
+//        viewModel.getUser()
+//        viewModel.getUserWithId(3)
+//        viewModel.getUserWithJob()
+        viewModel.getUserWithSync()
 
         viewModel.myResponse.observe(this, Observer { response ->
             when (response) {
@@ -52,9 +55,31 @@ class MainActivity : AppCompatActivity() {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
             }
+        })
 
+        viewModel.myResponsewithId.observe(this, Observer { response ->
+            when (response) {
+                is Resource.Success -> {
+                    response.data?.let {
+                        binding.tv2.text = it.toString()
+                    }
+                    hideProgressBar()
+                    hideErrorText()
+                }
+
+                is Resource.Error -> {
+                    response.message?.let { error ->
+                        Log.i("Main", error)
+                    }
+                    hideProgressBar()
+                    showErrorText()
+                }
+
+                is Resource.Loading -> {
+                    showProgressBar()
+                }
+            }
         })
 
 
@@ -87,10 +112,12 @@ class MainActivity : AppCompatActivity() {
     private fun showProgressBar() {
         binding.progressBar.visibility = View.VISIBLE
     }
-    private fun hideErrorText(){
+
+    private fun hideErrorText() {
         binding.tvError.visibility = View.GONE
     }
-    private fun showErrorText(){
+
+    private fun showErrorText() {
         binding.tvError.apply {
             visibility = View.VISIBLE
             binding.tvError.text = "Hata Oluştu"

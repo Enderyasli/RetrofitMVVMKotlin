@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.enderyasli.retrofitcoroutines.Repository
 import com.enderyasli.retrofitcoroutines.data.User
 import com.enderyasli.retrofitcoroutines.utils.Resource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -15,20 +19,71 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
     //Factory
 
     val myResponse: MutableLiveData<Resource<User>> = MutableLiveData()
+    val myResponsewithId: MutableLiveData<Resource<User>> = MutableLiveData()
 //    val isLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getUser() {
-
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
 //            isLoading.postValue(true)
             myResponse.postValue(Resource.Loading())
             val response = repository.getUser()
             myResponse.postValue(handleResponse(response))
 //            isLoading.postValue(false)
         }
+    }
 
+    fun getUserWithId(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            myResponsewithId.postValue(Resource.Loading())
+            val response = repository.getUserWithId(id)
+            myResponsewithId.postValue(handleResponse(response))
+        }
+    }
+
+
+    fun getUserWithJob() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val job1 = launch {
+                myResponse.postValue(Resource.Loading())
+                val response = repository.getUser()
+                myResponse.postValue(handleResponse(response))
+            }
+            val job2 = launch {
+                myResponsewithId.postValue(Resource.Loading())
+                val response = repository.getUserWithId(3)
+                myResponsewithId.postValue(handleResponse(response))
+            }
+
+            job1.join()
+            job2.join()
+        }
 
     }
+
+    fun getUserWithSync() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val deferred1 = async {
+                myResponse.postValue(Resource.Loading())
+                repository.getUser()
+            }
+            val deferred2 = async {
+                myResponsewithId.postValue(Resource.Loading())
+                repository.getUserWithId(3)
+            }
+
+            val response1 = deferred1.await()
+            val response2 = deferred2.await()
+
+            myResponse.postValue(handleResponse(response1))
+            myResponsewithId.postValue(handleResponse(response2))
+        }
+
+    }
+
 
     private fun handleResponse(response: Response<User>): Resource<User> {
 
