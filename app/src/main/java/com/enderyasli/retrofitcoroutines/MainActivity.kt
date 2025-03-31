@@ -32,7 +32,9 @@ class MainActivity : AppCompatActivity() {
 //        viewModel.getUser()
 //        viewModel.getUserWithId(3)
 //        viewModel.getUserWithJob()
-        viewModel.getUserWithSync()
+//        viewModel.getUserWithSync()
+//        viewModel.getUserComments(3)
+        viewModel.getSortedUserComments(2, "id", "desc")
 
         viewModel.myResponse.observe(this, Observer { response ->
             when (response) {
@@ -63,6 +65,68 @@ class MainActivity : AppCompatActivity() {
                 is Resource.Success -> {
                     response.data?.let {
                         binding.tv2.text = it.toString()
+                    }
+                    hideProgressBar()
+                    hideErrorText()
+                }
+
+                is Resource.Error -> {
+                    response.message?.let { error ->
+                        Log.i("Main", error)
+                    }
+                    hideProgressBar()
+                    showErrorText()
+                }
+
+                is Resource.Loading -> {
+                    showProgressBar()
+                }
+            }
+        })
+
+
+        viewModel.responseUserComments.observe(this, Observer { response ->
+            when (response) {
+                is Resource.Success -> {
+                    response.data?.let { userCommentList ->
+
+                        userCommentList.forEach {
+                            val userCommentList = userCommentList.joinToString("\n") {
+                                it.name
+                            }
+                            binding.tvComment.text = userCommentList
+                        }
+
+                    }
+                    hideProgressBar()
+                    hideErrorText()
+                }
+
+                is Resource.Error -> {
+                    response.message?.let { error ->
+                        Log.i("Main", error)
+                    }
+                    hideProgressBar()
+                    showErrorText()
+                }
+
+                is Resource.Loading -> {
+                    showProgressBar()
+                }
+            }
+        })
+        viewModel.responseSortedUserComments.observe(this, Observer { response ->
+            when (response) {
+                is Resource.Success -> {
+                    response.data?.let { userCommentList ->
+
+                        userCommentList.forEach {
+                            val userCommentList = userCommentList.joinToString("\n") {
+                                it.name
+                            }
+                            binding.tvSortedComment.text = userCommentList
+                        }
+
                     }
                     hideProgressBar()
                     hideErrorText()

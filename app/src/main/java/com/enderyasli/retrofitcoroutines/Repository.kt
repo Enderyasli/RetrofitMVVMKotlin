@@ -15,4 +15,16 @@ class Repository {
     suspend fun getUserWithId(id: Int): Response<User> {
         return apiService.getUserWithId(id)
     }
+
+    suspend fun getUserCommentsWithId(postId: Int): Response<List<User>> {
+        return apiService.getUserCommentsWithId(postId)
+    }
+
+    suspend fun getSortedUserComments(
+        postId: Int,
+        sort: String,
+        order: String
+    ): Response<List<User>> {
+        return apiService.getSortedUserComments(postId, sort, order)
+    }
 }

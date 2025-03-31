@@ -96,4 +96,40 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
 
     }
 
+    private fun handleListResponse(response: Response<List<User>>): Resource<List<User>> {
+
+        if (response.isSuccessful) {
+            response.body()?.let { myResponse ->
+                return Resource.Success(myResponse)
+            }
+        }
+        return Resource.Error("Error: ${response.code()} - ${response.body()}")
+
+    }
+
+
+    //***************************************************************************************
+
+    val responseUserComments: MutableLiveData<Resource<List<User>>> = MutableLiveData()
+
+    fun getUserComments(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            responseUserComments.postValue(Resource.Loading())
+            val response = repository.getUserCommentsWithId(id)
+            responseUserComments.postValue(handleListResponse(response))
+        }
+    }
+
+    val responseSortedUserComments: MutableLiveData<Resource<List<User>>> = MutableLiveData()
+
+
+    fun getSortedUserComments(postId: Int, sort: String, order: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            responseSortedUserComments.postValue(Resource.Loading())
+            val response = repository.getSortedUserComments(postId, sort, order)
+            responseSortedUserComments.postValue(handleListResponse(response))
+        }
+    }
+
+
 }
