@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.enderyasli.retrofitcoroutines.data.User
 import com.enderyasli.retrofitcoroutines.databinding.ActivityMainBinding
 import com.enderyasli.retrofitcoroutines.utils.Resource
 import com.enderyasli.retrofitcoroutines.viewModel.MainViewModel
@@ -35,6 +36,11 @@ class MainActivity : AppCompatActivity() {
 //        viewModel.getUserWithSync()
 //        viewModel.getUserComments(3)
         viewModel.getSortedUserComments(2, "id", "desc")
+        viewModel.postUser((User("body", 10, "Custom title", 10, 0, "name", "email")))
+
+
+
+
 
         viewModel.myResponse.observe(this, Observer { response ->
             when (response) {
@@ -146,6 +152,30 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        viewModel.postUser.observe(this, Observer { response ->
+            when (response) {
+                is Resource.Success -> {
+                    hideProgressBar()
+                    hideErrorText()
+                    response.data?.let {
+                        Log.d("Post User: ", "Post Succesfull: ${it}")
+                    }
+
+                }
+
+                is Resource.Error -> {
+                    response.message?.let { error ->
+                        Log.i("Main", error)
+                    }
+                    hideProgressBar()
+                    showErrorText()
+                }
+
+                is Resource.Loading -> {
+                    showProgressBar()
+                }
+            }
+        })
 
 //        viewModel.myResponse.observe(this, Observer { response ->
 //            if (response.isSuccessful && response != null) {

@@ -27,4 +27,8 @@ class Repository {
     ): Response<List<User>> {
         return apiService.getSortedUserComments(postId, sort, order)
     }
+
+    suspend fun postUser(user: User): Response<User> {
+        return apiService.postUser(user)
+    }
 }

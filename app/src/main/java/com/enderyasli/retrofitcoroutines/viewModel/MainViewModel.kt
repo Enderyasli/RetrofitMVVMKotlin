@@ -1,5 +1,6 @@
 package com.enderyasli.retrofitcoroutines.viewModel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,8 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
 
     val myResponse: MutableLiveData<Resource<User>> = MutableLiveData()
     val myResponsewithId: MutableLiveData<Resource<User>> = MutableLiveData()
+    val postUser: MutableLiveData<Resource<User>> = MutableLiveData()
+
 //    val isLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getUser() {
@@ -93,7 +96,6 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
             }
         }
         return Resource.Error("Error: ${response.code()} - ${response.body()}")
-
     }
 
     private fun handleListResponse(response: Response<List<User>>): Resource<List<User>> {
@@ -104,6 +106,19 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
             }
         }
         return Resource.Error("Error: ${response.code()} - ${response.body()}")
+    }
+
+    private fun handlePostResponse(response: Response<User>): Resource<User> {
+
+        return if (response.isSuccessful) {
+            response.body()?.let { result ->
+                Log.d("Retrofit Post:", "Response code: ${response.code()}")
+                Resource.Success(result)
+            } ?: Resource.Error("Response body is null")
+        } else {
+            Resource.Error(response.message())
+        }
+
 
     }
 
@@ -128,6 +143,15 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
             responseSortedUserComments.postValue(Resource.Loading())
             val response = repository.getSortedUserComments(postId, sort, order)
             responseSortedUserComments.postValue(handleListResponse(response))
+        }
+    }
+
+
+    fun postUser(user: User) {
+        viewModelScope.launch(Dispatchers.IO) {
+            postUser.postValue(Resource.Loading())
+            val response = repository.postUser(user)
+            postUser.postValue(handlePostResponse(response))
         }
     }
 

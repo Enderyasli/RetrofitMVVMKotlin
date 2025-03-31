@@ -3,7 +3,9 @@ package com.enderyasli.retrofitcoroutines.service
 
 import com.enderyasli.retrofitcoroutines.data.User
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,4 +33,9 @@ interface SimpleAPI {
         @Query("_sort") sort: String,
         @Query("_order") order: String,
     ): Response<List<User>>
+
+    @POST("/posts")
+    suspend fun postUser(
+        @Body user: User
+    ): Response<User>
 }
