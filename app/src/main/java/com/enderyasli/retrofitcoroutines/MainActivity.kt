@@ -9,6 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil3.load
+import coil3.request.crossfade
+import coil3.request.transformations
+import coil3.transform.CircleCropTransformation
+import coil3.transform.RoundedCornersTransformation
 import com.enderyasli.retrofitcoroutines.adapter.PostRecyclerAdapter
 import com.enderyasli.retrofitcoroutines.databinding.ActivityMainBinding
 import com.enderyasli.retrofitcoroutines.utils.Resource
@@ -51,6 +56,19 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+        binding.image.load("https://picsum.photos/600/300"){
+            crossfade(true)
+            crossfade(500)
+            transformations(RoundedCornersTransformation(
+                topLeft = 30f,
+                topRight = 30f,
+                bottomLeft = 30f,
+                bottomRight = 30f
+            ))
+            transformations(CircleCropTransformation())
+
+        }
+
 
         //Swipe Refresh
         binding.swipeRefreshLayout.setOnRefreshListener {
