@@ -15,6 +15,8 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
     val responsePost: MutableLiveData<Resource<List<Post>>> = MutableLiveData()
     private var currentUserId = 1
     var hasFirstPostsSeen: Boolean = false
+    var isRefreshing: Boolean = false
+        private set
 
     init {
         getPost(currentUserId)
@@ -25,6 +27,7 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
             responsePost.postValue(Resource.Loading())
             val response = repository.getPosts(userId)
             responsePost.postValue(handleListResponse(response))
+            isRefreshing = false
 
         }
     }
@@ -34,11 +37,18 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
         getPost(currentUserId)
     }
 
+    fun refreshPost() {
+        isRefreshing = true
+        currentUserId = 1
+        hasFirstPostsSeen = false
+        getPost(currentUserId)
+    }
+
     private fun handleListResponse(response: Response<List<Post>>): Resource<List<Post>> {
 
         if (response.isSuccessful) {
             response.body()?.let { myResponse ->
-                if(!hasFirstPostsSeen){
+                if (!hasFirstPostsSeen) {
                     hasFirstPostsSeen = true
                 }
                 return Resource.Success(myResponse)

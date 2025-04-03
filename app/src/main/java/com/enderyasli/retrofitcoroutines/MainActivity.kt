@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
 
-                    if (!recyclerView.canScrollVertically(1)) {
+                    if (!recyclerView.canScrollVertically(1) && !viewModel.isRefreshing) {
                         viewModel.loadMorePosts()
                     }
                 }
@@ -52,12 +52,19 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        //Swipe Refresh
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            postRecyclerAdapter.differ.submitList(emptyList())
+            viewModel.refreshPost()
+        }
+
 
 //        viewModel.getPost(1)
         viewModel.responsePost.observe(this, Observer { response ->
 
             when (response) {
                 is Resource.Success -> {
+                    binding.swipeRefreshLayout.isRefreshing = false
                     hideErrorText()
                     hideProgressBar()
                     response.data?.let { postList ->
@@ -68,13 +75,15 @@ class MainActivity : AppCompatActivity() {
                 is Resource.Error -> {
                     showProgressBar()
                     hideProgressBar()
+                    binding.swipeRefreshLayout.isRefreshing = false
                     response.message?.let { errorMessage ->
                         Log.d("MainActivity: ", "${errorMessage}")
                     }
                 }
 
                 is Resource.Loading -> {
-                    showProgressBar()
+                    if (!viewModel.isRefreshing)
+                        showProgressBar()
                 }
 
 
@@ -104,5 +113,7 @@ class MainActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
     }
 }
+
+
 
 
