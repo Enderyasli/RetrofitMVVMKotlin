@@ -8,8 +8,8 @@ class Repository {
 
     private val apiService = RetrofitInstance.api
 
-    suspend fun getPosts(): Response<List<Post>> {
-        return apiService.getPosts()
+    suspend fun getPosts(userId: Int): Response<List<Post>> {
+        return apiService.getPosts(userId)
 
     }
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.enderyasli.retrofitcoroutines.adapter.PostRecyclerAdapter
 import com.enderyasli.retrofitcoroutines.databinding.ActivityMainBinding
 import com.enderyasli.retrofitcoroutines.utils.Resource
@@ -37,10 +38,22 @@ class MainActivity : AppCompatActivity() {
             adapter = postRecyclerAdapter
             layoutManager =
                 LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+
+                    if (!recyclerView.canScrollVertically(1)) {
+                        viewModel.loadMorePosts()
+                    }
+                }
+            })
+
+
         }
 
 
-        viewModel.getPost()
+//        viewModel.getPost(1)
         viewModel.responsePost.observe(this, Observer { response ->
 
             when (response) {
@@ -48,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     hideErrorText()
                     hideProgressBar()
                     response.data?.let { postList ->
-                        postRecyclerAdapter.differ.submitList(postList)
+                        postRecyclerAdapter.differ.submitList(postRecyclerAdapter.differ.currentList + postList)
                     }
                 }
 
